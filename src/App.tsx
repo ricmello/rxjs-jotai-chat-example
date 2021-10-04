@@ -1,13 +1,14 @@
 import { Chats } from './chat/chat';
-import { fetchChats } from './chat/service';
+import React, { Suspense } from 'react';
 
 function App() {
   console.log('app rendered');
-  fetchChats();
 
   return (
     <>
-      <Chats />
+      <Suspense fallback={<div>Loading... </div>}>
+        <Chats />
+      </Suspense>
     </>
   );
 }

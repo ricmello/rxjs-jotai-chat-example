@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, useEffect } from 'react';
 import {
   Avatar,
   BottomNavigation,
@@ -11,49 +11,51 @@ import {
   Paper,
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
-import { chats$, fetchChats } from './service';
-import { useObservable } from './hooks';
+import { useAtom } from 'jotai';
+import { chatsError, fetchChatsAtom } from './atoms';
 
 export const Chats = () => {
-  console.log('chats rendered');
+  const [chats, fetchChats] = useAtom(fetchChatsAtom);
+  const [error] = useAtom(chatsError);
 
   const reload = () => fetchChats();
-  const [chats, error] = useObservable(chats$);
 
-  if (!chats) {
-    return <p>Starting request...</p>;
-  }
+  useEffect(() => {
+    fetchChats();
+  }, []);
 
   if (error) {
-    return <p>There has been an error: {error.message}</p>;
+    return <p>There has been an error: {error}</p>;
   }
 
-  if (chats.length === 0) {
+  if (chats?.length === 0) {
     return <p>No chat found...</p>;
   }
 
   return (
-    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      {chats.map((chat) => (
-        <React.Fragment key={chat.id}>
-          <ListItem alignItems='flex-start'>
-            <ListItemAvatar>
-              <Avatar alt={chat.name} src={chat.avatar} />
-            </ListItemAvatar>
-            <ListItemText primary={chat.name} secondary={chat.lastMessage} />
-          </ListItem>
-          <Divider variant='inset' component='li' />
-        </React.Fragment>
-      ))}
-      <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
-        <BottomNavigation showLabels>
-          <BottomNavigationAction
-            label='Refresh'
-            icon={<Refresh />}
-            onClick={reload}
-          />
-        </BottomNavigation>
-      </Paper>
-    </List>
+    <Suspense fallback={<p>Starting request...</p>}>
+      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        {chats?.map((chat) => (
+          <React.Fragment key={chat.id}>
+            <ListItem alignItems='flex-start'>
+              <ListItemAvatar>
+                <Avatar alt={chat.name} src={chat.avatar} />
+              </ListItemAvatar>
+              <ListItemText primary={chat.name} secondary={chat.lastMessage} />
+            </ListItem>
+            <Divider variant='inset' component='li' />
+          </React.Fragment>
+        ))}
+        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
+          <BottomNavigation showLabels>
+            <BottomNavigationAction
+              label='Refresh'
+              icon={<Refresh />}
+              onClick={reload}
+            />
+          </BottomNavigation>
+        </Paper>
+      </List>
+    </Suspense>
   );
 };

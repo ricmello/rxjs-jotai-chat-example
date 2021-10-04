@@ -2,7 +2,7 @@ import axios from 'axios';
 import { from, map, Subject } from 'rxjs';
 import { Chat } from './models';
 
-const chatApiClient = axios.create({
+export const chatApiClient = axios.create({
   baseURL: 'https://6156154ae039a0001725a90c.mockapi.io',
 });
 
