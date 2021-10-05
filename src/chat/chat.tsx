@@ -26,7 +26,7 @@ export const Chats = () => {
   }, []);
 
   if (error) {
-    return <p>There has been an error: {error}</p>;
+    return <p>There has been an error: {error.message}</p>;
   }
 
   if (chats?.length === 0) {

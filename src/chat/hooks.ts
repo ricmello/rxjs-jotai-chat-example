@@ -9,7 +9,7 @@ export function useObservable<T>(
 
   useEffect(() => {
     const subscription = observable.subscribe({
-      next: (value) => setValue(value as any),
+      next: (value) => setValue(value),
       error: (error) => setError(error),
     });
 
