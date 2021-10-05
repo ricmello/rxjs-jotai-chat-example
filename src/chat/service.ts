@@ -1,20 +1,25 @@
 import axios from 'axios';
-import { from, map, Subject } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, from, map } from 'rxjs';
 import { Chat } from './models';
 
-export const chatApiClient = axios.create({
+const chatApiClient = axios.create({
   baseURL: 'https://6156154ae039a0001725a90c.mockapi.io',
 });
 
-const chats = new Subject<Chat[]>();
-export const chats$ = chats.asObservable();
+function getRandomQuantity(data: Chat[]) {
+  return data.filter((_, i) => i < Math.random() * 30);
+}
 
+const chatsSubject = new BehaviorSubject<{ chats?: Chat[]; error?: Error }>({});
+
+export const chats$ = chatsSubject.asObservable().pipe(distinctUntilChanged());
 export const fetchChats = () => {
   console.log('fetch called');
+
   return from(chatApiClient.get<Chat[]>('/chats'))
-    .pipe(map((response) => response.data))
+    .pipe(map((response) => getRandomQuantity(response.data)))
     .subscribe({
-      next: (x) => chats.next(x),
-      error: (error) => chats.error(error),
+      next: (chats) => chatsSubject.next({ chats, error: undefined }),
+      error: (error) => chatsSubject.next({ chats: [], error }),
     });
 };

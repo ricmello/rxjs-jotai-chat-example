@@ -12,11 +12,12 @@ import {
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import { useAtom } from 'jotai';
-import { chatsError, fetchChatsAtom } from './atoms';
+import { fetchChats } from './service';
+import { chatsAtom } from './atoms';
 
 export const Chats = () => {
-  const [chats, fetchChats] = useAtom(fetchChatsAtom);
-  const [error] = useAtom(chatsError);
+  console.log('chats rendered');
+  const [{ chats, error }] = useAtom(chatsAtom);
 
   const reload = () => fetchChats();
 
@@ -33,7 +34,7 @@ export const Chats = () => {
   }
 
   return (
-    <Suspense fallback={<p>Starting request...</p>}>
+    <Suspense fallback='Starting request...'>
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {chats?.map((chat) => (
           <React.Fragment key={chat.id}>
